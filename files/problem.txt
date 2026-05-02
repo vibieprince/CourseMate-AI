@@ -1,0 +1,18 @@
+CourseMate AI is an AI-powered study assistant designed to help students interact with their learning materials more efficiently. Modern students rely on multiple sources of study materials such as lecture notes, textbooks, PDFs, and research papers. These documents are often long and difficult to navigate, making it time-consuming to find specific information. 
+
+CourseMate AI aims to solve this problem by allowing students to chat with their study materials. Instead of manually searching through pages of content, students can simply ask questions and receive accurate answers extracted directly from their documents.
+
+By leveraging Retreival-Augmented Generation (RAG), CourseMate AI combines document retrieval with large language models to provide context-aware explainations, summaries, and answers from the students own study resources.
+
+
+Step 1 - User uploads study materials
+Step 2 - Document Loading
+Step 3 - Text Splitting(Chunking)
+Step 4 - Embedding Generation
+Step 5 - Vector Database Storage
+Step 6 - User asks a question 
+Step 7 - Query Embedding
+Step 8 - Similarity search 
+Step 9 - Retriever Component 
+Step 10 - LLM answers 
+

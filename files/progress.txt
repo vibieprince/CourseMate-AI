@@ -1,0 +1,169 @@
+
+PROGRESS SOFTWARE ONLINE ASSESSMENT PREPARATION GUIDE
+====================================================
+
+Candidate: Prince
+Role Target: SDE / Data / Backend Roles
+
+----------------------------------------------------
+1. DATA STRUCTURES & ALGORITHMS (DSA)
+----------------------------------------------------
+
+ARRAYS & STRINGS:
+- LeetCode 1: Two Sum
+- LeetCode 121: Best Time to Buy and Sell Stock
+- LeetCode 53: Maximum Subarray
+- LeetCode 238: Product of Array Except Self
+- LeetCode 3: Longest Substring Without Repeating Characters
+- LeetCode 424: Longest Repeating Character Replacement
+
+SLIDING WINDOW:
+- LeetCode 209: Minimum Size Subarray Sum
+- LeetCode 76: Minimum Window Substring
+
+HASHING:
+- LeetCode 49: Group Anagrams
+- LeetCode 128: Longest Consecutive Sequence
+
+LINKED LIST:
+- LeetCode 206: Reverse Linked List
+- LeetCode 141: Linked List Cycle
+- LeetCode 21: Merge Two Sorted Lists
+
+STACK & QUEUE:
+- LeetCode 20: Valid Parentheses
+- LeetCode 155: Min Stack
+- LeetCode 232: Implement Queue using Stacks
+
+TREES:
+- LeetCode 104: Maximum Depth of Binary Tree
+- LeetCode 102: Binary Tree Level Order Traversal
+- LeetCode 98: Validate BST
+- LeetCode 236: Lowest Common Ancestor
+
+GRAPHS:
+- LeetCode 200: Number of Islands
+- LeetCode 133: Clone Graph
+- LeetCode 207: Course Schedule
+- LeetCode 743: Network Delay Time
+
+DYNAMIC PROGRAMMING:
+- LeetCode 70: Climbing Stairs
+- LeetCode 198: House Robber
+- LeetCode 322: Coin Change
+- LeetCode 300: Longest Increasing Subsequence
+
+----------------------------------------------------
+2. SQL PREPARATION
+----------------------------------------------------
+
+BASIC QUERIES:
+- LeetCode 175: Combine Two Tables
+- LeetCode 181: Employees Earning More Than Their Managers
+
+JOINS:
+- LeetCode 183: Customers Who Never Order
+- LeetCode 196: Delete Duplicate Emails
+
+AGGREGATION:
+- LeetCode 182: Duplicate Emails
+- LeetCode 595: Big Countries
+
+WINDOW FUNCTIONS:
+- LeetCode 176: Second Highest Salary
+- LeetCode 177: Nth Highest Salary
+
+ADVANCED:
+- LeetCode 180: Consecutive Numbers
+- LeetCode 184: Department Highest Salary
+
+----------------------------------------------------
+3. OBJECT-ORIENTED PROGRAMMING (OOP)
+----------------------------------------------------
+
+- Encapsulation
+- Abstraction
+- Inheritance
+- Polymorphism
+- SOLID Principles
+
+DESIGN PATTERNS:
+- Singleton Pattern
+- Factory Pattern
+- Observer Pattern
+
+PRACTICE:
+- Design Parking Lot System
+- Design Library System
+- Design Food Delivery System
+
+----------------------------------------------------
+4. CORE COMPUTER SCIENCE
+----------------------------------------------------
+
+OPERATING SYSTEM:
+- Process vs Thread
+- CPU Scheduling
+- Deadlock
+- Synchronization (Mutex, Semaphore)
+
+DBMS:
+- Normalization (1NF, 2NF, 3NF)
+- Indexing
+- Transactions
+- ACID Properties
+- Locking Mechanisms
+
+COMPUTER NETWORKS:
+- TCP vs UDP
+- HTTP/HTTPS
+- REST APIs
+- DNS
+
+----------------------------------------------------
+5. PROGRAMMING CONCEPTS
+----------------------------------------------------
+
+- Time & Space Complexity
+- Recursion & Backtracking
+- STL (C++) / Collections (Java)
+- Memory Management (malloc vs calloc)
+
+----------------------------------------------------
+6. REAL-WORLD PROBLEM SOLVING
+----------------------------------------------------
+
+- File processing problems
+- Data filtering & transformation
+- Debugging code
+- Optimization techniques
+
+----------------------------------------------------
+7. PROJECT PREPARATION
+----------------------------------------------------
+
+Be ready to explain:
+- Architecture
+- Tech stack
+- Challenges faced
+- Improvements
+- Scalability ideas
+
+YOUR PROJECTS:
+- RIFT (Fraud Detection)
+- PrintSmart System
+
+----------------------------------------------------
+8. BONUS PREPARATION
+----------------------------------------------------
+
+- Basic System Design (API design, DB design)
+- Backend concepts (REST APIs, CRUD)
+- Basic Machine Learning (if Data role)
+
+----------------------------------------------------
+FINAL NOTE:
+Focus on clarity, problem-solving approach, and real-world thinking.
+Moderate DSA + Strong fundamentals = Selection.
+
+ALL THE BEST!

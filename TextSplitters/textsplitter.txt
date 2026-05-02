@@ -1,0 +1,25 @@
+1. Most of the embedding models and language model have a context window and they cannot take infinite tokens at the same time so for that we have to use the text splitting.
+
+2. Better retrieval in RAG 
+   In RAG, we search through vector embeddings.
+   If the document is too large:
+    - embeddings become less precise 
+   Similar chunks allow the system to receive only the most rlevant piece of information instead of the whole document.
+
+3. More Accurate Embeddings 
+   Embeddings work best when the text represents one clear idea or topic.
+   If you embed very large text:
+    - multiple topics mix together
+    - semantic meaning becomes blurred
+   Chunking ensures each embedding represents a focused concept.
+
+4. Faster Processing 
+   Working with smaller chunks:
+   - Speeds up embedding creation
+   - speeds up similarity search in vector databases(Chrome, Pinecone,FAISS).
+   Large documents would make the pipeline slower and expensive.
+
+We are going to see 3 types of text splitting methods
+1. Character - Based splitting
+2. Token-based splitting
+3. semantic/ meaning based splitting

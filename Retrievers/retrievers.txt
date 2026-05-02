@@ -1,0 +1,24 @@
+A retriever takes a user query and returns the most relevant documents or chunks from a database.
+
+Now there are 2 types of retriever
+1. By Data Source(Wikepedia,Arxiv,PubMed,etc.)
+2. By retrieval strategy(Similarity,MMR, MultiQuery,etc.)
+
+When we talk about retrievers using data sources, we mean retirevers that fetch information from specific external sources or databases instead of your own vector store. These retrievers connect to APIs or datasets and return relevant documents for the query. 
+
+
+In most RAG systems, retrievers mainly use three core retrieval strategies. These are the ones you will see most often in real projects and tutorials.
+
+1. Similarity Search (most common)
+    The system compares the query vector with discount vectors using Similarity metrices like:
+    - cosine Similarity(most common)
+    - Dot product 
+    - Euclidean distance
+    The retriever finds the most similar vectors
+
+    Top-K documents are retrieved
+
+2. MMR (Max marginal relevance)
+    Imagine 
+3. MultiQuery Retrieval 
+
