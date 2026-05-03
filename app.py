@@ -19,6 +19,8 @@ load_dotenv()
 
 app = FastAPI()
 
+# ===================== CORS =====================
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -27,7 +29,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ===================== DEBUG SESSION TRACKING =====================
+# ===================== ROOT =====================
+
+@app.get("/")
+def root():
+    return {"status": "CourseMate AI running 🚀"}
+
+# ===================== SESSION TRACKING =====================
 
 active_sessions = {}
 
@@ -40,47 +48,51 @@ def log_session(session_id):
 
 # ===================== MODELS =====================
 
-embedding_model = HuggingFaceEndpointEmbeddings(model="sentence-transformers/all-MiniLM-L6-v2")
+embedding_model = HuggingFaceEndpointEmbeddings(
+    model="sentence-transformers/all-MiniLM-L6-v2"
+)
+
 llm = ChatMistralAI(model="mistral-small-latest")
 
 prompt = ChatPromptTemplate.from_messages([
-    ("system", 
-     """You are a strict document-based AI assistant.
+    ("system",
+     """You are a document-based AI assistant.
 
-    You MUST follow these rules:
-    1. Answer ONLY using the provided context.
-    2. If the answer is NOT clearly present in the context, respond EXACTLY with:
-    "I could not find the answer in the document."
-    3. DO NOT use your own knowledge.
-    4. DO NOT guess or assume anything.
-    5. Keep answers concise and formatted in markdown when needed.
-    """),
-        ("human", "Context:\n{context}\n\nQuestion: {question}")
-    ])
+Follow these rules carefully:
+
+1. Answer ONLY using the provided context.
+2. You are allowed to:
+   - summarize the document
+   - explain concepts present in the context
+   - answer general questions like "what is this document about?"
+3. If the answer can be reasonably inferred or summarized from the context, provide a clear response.
+4. If the context does NOT contain enough relevant information, respond EXACTLY with:
+   "I could not find the answer in the document."
+5. DO NOT use any external knowledge.
+6. DO NOT guess or fabricate information.
+
+Keep answers concise and well formatted.
+"""),
+    ("human", "Context:\n{context}\n\nQuestion: {question}")
+])
 
 # ===================== CLEANUP =====================
 
 def scheduled_cleanup(session_id: str):
     print(f"🧹 Starting cleanup for {session_id}")
-    time.sleep(600)  # 10 minutes
-    
+    time.sleep(600)
+
     db_path = f"db/{session_id}"
     temp_file = f"temp/{session_id}.pdf"
 
     gc.collect()
 
     if os.path.exists(db_path):
-        for i in range(5):
-            try:
-                shutil.rmtree(db_path)
-                print(f"🗑 DB removed: {db_path}")
-                break
-            except PermissionError:
-                print(f"⚠️ DB locked, retrying... ({i+1}/5)")
-                time.sleep(2)
-            except Exception as e:
-                print(f"❌ DB delete error: {e}")
-                break
+        try:
+            shutil.rmtree(db_path)
+            print(f"🗑 DB removed: {db_path}")
+        except Exception as e:
+            print(f"❌ DB delete error: {e}")
 
     if os.path.exists(temp_file):
         try:
@@ -97,8 +109,7 @@ def scheduled_cleanup(session_id: str):
 @app.post("/upload")
 async def upload_pdf(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
     session_id = str(uuid.uuid4())
-
-    log_session(session_id)  # 🔥 tracking
+    log_session(session_id)
 
     upload_path = f"temp/{session_id}.pdf"
     db_path = f"db/{session_id}"
@@ -106,30 +117,58 @@ async def upload_pdf(background_tasks: BackgroundTasks, file: UploadFile = File(
     os.makedirs("temp", exist_ok=True)
     os.makedirs("db", exist_ok=True)
 
-    with open(upload_path, "wb") as f:
-        f.write(await file.read())
+    try:
+        # 🔥 File size check (5MB)
+        content = await file.read()
+        if len(content) > 5 * 1024 * 1024:
+            return {"error": "File too large (max 5MB)"}
 
-    print(f"📄 File saved at: {upload_path}")
+        with open(upload_path, "wb") as f:
+            f.write(content)
 
-    loader = PyPDFLoader(upload_path)
-    docs = loader.load()
+        print(f"📄 File saved: {upload_path}")
 
-    splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    chunks = splitter.split_documents(docs)
+        loader = PyPDFLoader(upload_path)
+        docs = loader.load()
 
-    vectorstore = Chroma.from_documents(
-        documents=chunks,
-        embedding=embedding_model,
-        persist_directory=db_path
-    )
+        # Clean text
+        for doc in docs:
+            doc.page_content = doc.page_content.replace("\n", " ").strip()
 
-    del vectorstore
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000,
+            chunk_overlap=200
+        )
 
-    print(f"📂 DB created at: {db_path}")
+        chunks = splitter.split_documents(docs)
 
-    background_tasks.add_task(scheduled_cleanup, session_id)
+        # 🔥 Filter empty chunks
+        chunks = [c for c in chunks if c.page_content.strip()]
 
-    return {"session_id": session_id}
+        if not chunks:
+            return {"error": "PDF has no readable text."}
+
+        # 🔥 Limit chunks (memory safety)
+        if len(chunks) > 200:
+            chunks = chunks[:200]
+
+        vectorstore = Chroma.from_documents(
+            documents=chunks,
+            embedding=embedding_model,
+            persist_directory=db_path
+        )
+
+        del vectorstore
+
+        print(f"📂 DB created: {db_path}")
+
+        background_tasks.add_task(scheduled_cleanup, session_id)
+
+        return {"session_id": session_id}
+
+    except Exception as e:
+        print(f"❌ Upload error: {e}")
+        return {"error": "Failed to process document"}
 
 # ===================== CHAT =====================
 
@@ -142,34 +181,39 @@ async def chat(data: dict):
     if not os.path.exists(db_path):
         return {"answer": "Session expired. Please re-upload your document."}
 
-    vectorstore = Chroma(
-        persist_directory=db_path,
-        embedding_function=embedding_model
-    )
+    try:
+        vectorstore = Chroma(
+            persist_directory=db_path,
+            embedding_function=embedding_model
+        )
 
-    results = vectorstore.similarity_search_with_score(query, k=4)
+        results = vectorstore.similarity_search_with_score(query, k=4)
 
-    threshold = 0.5
-    filtered_docs = [doc for doc, score in results if score < threshold]
+        threshold = 0.5
+        filtered_docs = [doc for doc, score in results if score < threshold]
 
-    if not filtered_docs:
-        return {"answer": "I could not find the answer in the document."}
+        if not filtered_docs:
+            return {"answer": "I could not find the answer in the document."}
 
-    context = "\n\n".join(doc.page_content for doc in filtered_docs)
+        context = "\n\n".join(doc.page_content for doc in filtered_docs)
 
-    final_prompt = prompt.invoke({
-        "context": context,
-        "question": query
-    })
+        final_prompt = prompt.invoke({
+            "context": context,
+            "question": query
+        })
 
-    response = llm.invoke(final_prompt)
+        response = llm.invoke(final_prompt)
 
-    del vectorstore
-    gc.collect()
+        del vectorstore
+        gc.collect()
 
-    return {"answer": response.content}
+        return {"answer": response.content}
 
-# ===================== DEBUG ROUTES =====================
+    except Exception as e:
+        print(f"❌ Chat error: {e}")
+        return {"answer": "Something went wrong. Try again."}
+
+# ===================== DEBUG =====================
 
 @app.get("/debug/files")
 def list_files():
@@ -179,27 +223,8 @@ def list_files():
         "active_sessions": active_sessions
     }
 
-@app.get("/debug/cleanup/{session_id}")
-def manual_cleanup(session_id: str):
-    db_path = f"db/{session_id}"
-    temp_file = f"temp/{session_id}.pdf"
-
-    try:
-        if os.path.exists(db_path):
-            shutil.rmtree(db_path)
-
-        if os.path.exists(temp_file):
-            os.remove(temp_file)
-
-        active_sessions.pop(session_id, None)
-
-        return {"status": "manual cleanup successful", "session": session_id}
-
-    except Exception as e:
-        return {"status": "error", "message": str(e)}
-
 @app.get("/debug/status")
-def system_status():
+def status():
     return {
         "status": "running",
         "active_sessions": len(active_sessions),
