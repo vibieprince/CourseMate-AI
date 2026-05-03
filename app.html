@@ -19,7 +19,15 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-chat); color: var(--text-main); display: flex; height: 95vh; overflow: hidden; }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg-chat); 
+            color: var(--text-main); 
+            display: flex; 
+            height: 100dvh; /* 🔥 dynamic viewport */
+            overflow: hidden; 
+        }
 
         /* Sidebar Styling */
         aside { 
@@ -54,7 +62,15 @@
         #active-doc-link span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; font-weight: 500; font-size: 0.85rem; }
 
         /* Main Chat Area */
-        main { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; min-width: 0; }
+        main { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            width: 100%; 
+            min-width: 0; 
+            height: 100%;
+        }
         header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; background: white; }
         .header-left { display: flex; align-items: center; gap: 1rem; }
         
@@ -87,7 +103,19 @@
             .chat-container { padding: 1rem; }
             .message { max-width: 100%; }
         }
+        @media (max-width: 768px) {
+            .input-wrapper {
+                position: sticky;
+                bottom: 0;
+                z-index: 50;
+                background: white;
+                padding-bottom: env(safe-area-inset-bottom);
+            }
 
+            .chat-container {
+                padding-bottom: 100px; /* space for input */
+            }
+        }
         /* Add these rules for formatted Markdown output */
         .msg-content p { margin-bottom: 0.75rem; }
         .msg-content p:last-child { margin-bottom: 0; }
@@ -249,6 +277,16 @@
 
         chatInput.addEventListener('keypress', (e) => { 
             if(e.key === 'Enter') sendMessage(); 
+        });
+
+        chatInput.addEventListener('focus', () => {
+            setTimeout(() => {
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }, 300);
+        });
+
+        window.addEventListener('resize', () => {
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         });
     </script>
 </body>
