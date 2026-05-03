@@ -19,7 +19,7 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-chat); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-chat); color: var(--text-main); display: flex; height: 95vh; overflow: hidden; }
 
         /* Sidebar Styling */
         aside { 
@@ -103,8 +103,8 @@
     <aside id="sidebar">
         <div class="sidebar-header">
             <div class="logo-area">
-                <div class="logo-icon"><i class="fas fa-sparkles"></i></div>
-                <span class="brand-name">CourseMate</span>
+                <div class="logo-icon"><i class="fas fa-brain"></i></div>
+                <span class="brand-name">Library</span>
             </div>
             <!-- Added Close Button for Mobile -->
             <button type="button" class="close-sidebar" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
@@ -137,7 +137,7 @@
         <header>
             <div class="header-left">
                 <button type="button" class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-                <h2 style="font-size: 1.1rem; font-weight: 700;">Library Chat</h2>
+                <h2 style="font-size: 1.1rem; font-weight: 700;">CourseMate AI</h2>
             </div>
         </header>
 
@@ -165,6 +165,7 @@
                 </button>
             </div>
         </div>
+        <center><p style="font-size: 0.75rem; color: var(--text-muted); text-align: center;">Responses are solely based from the file you upload.</p></center>
     </main>
 
     <script>
