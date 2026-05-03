@@ -55,27 +55,9 @@ embedding_model = HuggingFaceEndpointEmbeddings(
 llm = ChatMistralAI(model="mistral-small-latest")
 
 prompt = ChatPromptTemplate.from_messages([
-    ("system",
-     """You are a document-based AI assistant.
-
-Follow these rules carefully:
-
-1. Answer ONLY using the provided context.
-2. You are allowed to:
-   - summarize the document
-   - explain concepts present in the context
-   - answer general questions like "what is this document about?"
-3. If the answer can be reasonably inferred or summarized from the context, provide a clear response.
-4. If the context does NOT contain enough relevant information, respond EXACTLY with:
-   "I could not find the answer in the document."
-5. DO NOT use any external knowledge.
-6. DO NOT guess or fabricate information.
-
-Keep answers concise and well formatted.
-"""),
-    ("human", "Context:\n{context}\n\nQuestion: {question}")
+    ("system", "You are a helpful study assistant. Use the provided context to answer questions clearly. Use markdown for formatting (bullets, bolding, etc.)."),
+    ("human", "Context: {context}\n\nQuestion: {question}")
 ])
-
 # ===================== CLEANUP =====================
 
 def scheduled_cleanup(session_id: str):
