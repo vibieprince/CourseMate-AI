@@ -6,13 +6,18 @@ import uuid
 import shutil
 import time
 import gc
+import base64
+from datetime import datetime
+from langchain_core.documents import Document
 
 from langchain_mistralai import ChatMistralAI
 from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_core.messages import HumanMessage
+import fitz  # PyMuPDF
 
 load_dotenv()
 
@@ -20,16 +25,21 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    # Allow your specific GitHub Pages frontend domain
+    allow_origins=[
+        "https://vibieprince.github.io",
+        "http://127.0.0.1:5500",  # Keeps local Live Server testing working
+        "http://localhost:3000"   
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Initialize Models
-# Ensure MISTRAL_API_KEY and HUGGINGFACEHUB_API_TOKEN are in your Environment Variables
 embedding_model = HuggingFaceEndpointEmbeddings(model="sentence-transformers/all-MiniLM-L6-v2")
 llm = ChatMistralAI(model="mistral-small-latest", temperature=0)
+ocr_llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0)
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", (
@@ -38,6 +48,7 @@ prompt = ChatPromptTemplate.from_messages([
         "'I am sorry, but the uploaded document does not contain information regarding this.' "
         "Do not use outside knowledge or mention other companies/topics not in the text. "
         "Use markdown for formatting."
+        "However if someone asks you general questions like how are you, what do you do, what's the day today, what will be the day on the date mentioned in the document, etc... you have to answer accordingly."
     )),
     ("human", "Context:\n{context}\n\nQuestion: {question}")
 ])
@@ -85,11 +96,53 @@ async def upload_pdf(background_tasks: BackgroundTasks, file: UploadFile = File(
     with open(upload_path, "wb") as f:
         f.write(await file.read())
 
-    loader = PyPDFLoader(upload_path)
-    docs = loader.load()
+    try:
+        doc = fitz.open(upload_path)
+    except Exception as e:
+        return {"error": f"Failed to read PDF: {e}"}
+
+    cleaned_docs = []
+    for i in range(len(doc)):
+        page = doc[i]
+        text = " ".join(page.get_text().split()).strip()
+
+        # Check if the page is image-only/scanned (fewer than 40 characters extracted)
+        if len(text) < 40:
+            pix = page.get_pixmap(dpi=150)
+            img_bytes = pix.tobytes("png")
+            img_base64 = base64.b64encode(img_bytes).decode("utf-8")
+            
+            try:
+                response = ocr_llm.invoke([
+                    HumanMessage(
+                        content=[
+                            {
+                                "type": "text",
+                                "text": "Extract all readable text from this document page. Return only extracted text exactly as written."
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": f"data:image/png;base64,{img_base64}"}
+                            }
+                        ]
+                    )
+                ])
+                ocr_text = response.content.strip()
+                if ocr_text:
+                    cleaned_docs.append(Document(page_content=ocr_text, metadata={"source": file.filename, "page": i+1}))
+                elif text:
+                    cleaned_docs.append(Document(page_content=text, metadata={"source": file.filename, "page": i+1}))
+            except Exception:
+                if text:
+                    cleaned_docs.append(Document(page_content=text, metadata={"source": file.filename, "page": i+1}))
+        else:
+            cleaned_docs.append(Document(page_content=text, metadata={"source": file.filename, "page": i+1}))
+
+    if not cleaned_docs:
+        return {"error": "No readable text could be processed from this document."}
 
     splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100)
-    chunks = splitter.split_documents(docs)
+    chunks = splitter.split_documents(cleaned_docs)
 
     vectorstore = Chroma.from_documents(
         documents=chunks,
@@ -126,7 +179,12 @@ async def chat(data: dict):
     if not docs:
         return {"answer": "I am sorry, but I couldn't find any relevant sections in the document to answer that."}
 
-    context = "\n\n".join(doc.page_content for doc in docs)
+    # Injecting system date and time explicitly within the context block
+    # This allows the system prompt's general conversational exception instructions to fire seamlessly
+    current_time_str = datetime.now().strftime("%A, %B %d, %Y")
+    context_elements = [f"Current Live System Date/Time: {current_time_str}"]
+    context_elements.extend(doc.page_content for doc in docs)
+    context = "\n\n".join(context_elements)
 
     final_prompt = prompt.invoke({"context": context, "question": query})
     response = llm.invoke(final_prompt)

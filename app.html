@@ -3,28 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CourseMate AI | Premium Learning Assistant</title>
+    <title>CourseMate AI | Pdf Learning assistant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
 
         :root {
             --sidebar-width: 280px;
             --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-main: #ffffff;
-            --bg-sidebar: #f9fafb;
-            --border-color: #f1f5f9;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
-            --msg-user: #4f46e5;
-            --msg-ai: #f8fafc;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-            --radius: 12px;
+            --primary-glow: rgba(79, 70, 229, 0.08);
+            
+            /* Clean Light Theme Palette */
+            --bg-main: #f9fafb;
+            --bg-card: #ffffff;
+            --bg-sidebar: #f3f4f6;
+            --border-color: rgba(0, 0, 0, 0.06);
+            --border-focus: rgba(79, 70, 229, 0.3);
+            
+            --text-primary: #111827;
+            --text-secondary: #4b5563;
+            --text-muted: #9ca3af;
+            
+            --msg-user: #f3f4f6;
+            --msg-ai: #ffffff;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -37,6 +47,7 @@
             height: 100dvh; 
             overflow: hidden; 
             line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* --- Sidebar & Navigation --- */
@@ -46,24 +57,34 @@
             border-right: 1px solid var(--border-color); 
             display: flex; 
             flex-direction: column; 
-            padding: 1.25rem; 
+            padding: 1.5rem; 
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             z-index: 1000;
         }
 
         .sidebar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; }
         .logo-area { display: flex; align-items: center; gap: 0.75rem; }
-        .logo-icon { width: 36px; height: 36px; background: var(--primary); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; box-shadow: var(--shadow-sm); }
-        .brand-name { font-weight: 700; font-size: 1.15rem; letter-spacing: -0.02em; }
+        .logo-icon { 
+            width: 36px; 
+            height: 36px; 
+            background: var(--primary); 
+            border-radius: 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); 
+        }
+        .brand-name { font-weight: 700; font-size: 1.1rem; letter-spacing: -0.02em; color: var(--text-primary); }
         
-        .close-sidebar { display: none; background: none; border: none; font-size: 1.5rem; color: var(--text-muted); cursor: pointer; }
+        .close-sidebar { background: none; border: none; font-size: 1.25rem; color: var(--text-secondary); cursor: pointer; }
 
         .btn-new-chat { 
-            background: white; 
+            background: var(--bg-card); 
             color: var(--text-primary); 
             border: 1px solid var(--border-color); 
             padding: 0.75rem; 
-            border-radius: var(--radius); 
+            border-radius: var(--radius-md); 
             width: 100%; 
             font-weight: 600; 
             cursor: pointer; 
@@ -72,13 +93,13 @@
             justify-content: center; 
             gap: 0.6rem; 
             margin-bottom: 1.5rem; 
-            transition: all 0.2s;
             box-shadow: var(--shadow-sm);
+            transition: var(--transition-base);
         }
-        .btn-new-chat:hover { background: #f8fafc; border-color: var(--text-muted); transform: translateY(-1px); }
+        .btn-new-chat:hover { background: #fafafa; border-color: rgba(0, 0, 0, 0.15); }
 
         .nav-menu { list-style: none; flex: 1; }
-        .nav-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 1.5rem 0 0.5rem 0.5rem; font-weight: 700; }
+        .nav-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin: 1.5rem 0 0.5rem 0.5rem; font-weight: 700; }
         .nav-item { 
             display: flex; 
             align-items: center; 
@@ -87,26 +108,43 @@
             color: var(--text-secondary); 
             text-decoration: none; 
             border-radius: 8px; 
-            font-size: 0.925rem; 
+            font-size: 0.9rem; 
             margin-bottom: 0.2rem; 
             transition: 0.2s; 
+            border: 1px solid transparent;
         }
-        .nav-item:hover { background: #eff6ff; color: var(--primary); }
-        .nav-item i { width: 18px; font-size: 1rem; opacity: 0.8; }
+        .nav-item:hover { background: rgba(0, 0, 0, 0.03); color: var(--text-primary); }
+        .nav-item i { width: 18px; font-size: 0.95rem; opacity: 0.8; }
 
-        #active-doc-link { display: none; background: white; border: 1px solid var(--border-color); margin-top: 0.5rem; box-shadow: var(--shadow-sm); }
+        #active-doc-link { 
+            display: none; 
+            background: rgba(79, 70, 229, 0.05); 
+            border: 1px solid rgba(79, 70, 229, 0.12); 
+            margin-top: 0.5rem; 
+            color: var(--primary); 
+            font-weight: 500;
+        }
 
         /* --- Main Layout --- */
-        main { flex: 1; display: flex; flex-direction: column; width: 100%; background: white; position: relative; }
+        main { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            width: 100%; 
+            background: var(--bg-main); 
+            position: relative; 
+            height: 100%;
+        }
         
         header { 
-            padding: 0.8rem 1.5rem; 
+            padding: 1rem 2rem; 
             border-bottom: 1px solid var(--border-color); 
             display: flex; 
             align-items: center; 
             justify-content: space-between;
             background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             position: sticky;
             top: 0;
             z-index: 10;
@@ -115,7 +153,7 @@
         .chat-container { 
             flex: 1; 
             overflow-y: auto; 
-            padding: 2rem 1.5rem; 
+            padding: 2.5rem 2rem; 
             display: flex; 
             flex-direction: column; 
             gap: 2rem; 
@@ -125,30 +163,33 @@
         /* --- Message Styling & Animations --- */
         .message { 
             display: flex; 
-            gap: 1rem; 
-            max-width: 850px; 
+            gap: 1.25rem; 
+            max-width: 800px; 
             width: 100%; 
             margin: 0 auto; 
-            animation: messageAppear 0.35s cubic-bezier(0, 0, 0.2, 1);
+            animation: messageAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes messageAppear {
-            from { opacity: 0; transform: translateY(12px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .avatar { 
-            width: 36px; 
-            height: 36px; 
-            border-radius: 10px; 
+            width: 34px; 
+            height: 34px; 
+            border-radius: 8px; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             flex-shrink: 0; 
-            font-size: 1rem;
+            font-size: 0.9rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            box-shadow: var(--shadow-sm);
         }
-        .ai-avatar { background: var(--primary); color: white; }
-        .user-avatar { background: #f1f5f9; color: var(--text-secondary); }
+        .ai-avatar { background: var(--primary-light); color: var(--primary); border-color: rgba(79, 70, 229, 0.15); }
+        .user-avatar { background: #27272a; color: #fff; border-color: #27272a; }
 
         .msg-content { 
             background: var(--msg-ai); 
@@ -159,51 +200,66 @@
             border: 1px solid var(--border-color);
             position: relative;
             max-width: calc(100% - 48px);
+            box-shadow: var(--shadow-sm);
         }
 
         .message.user { flex-direction: row-reverse; }
         .message.user .msg-content { 
             background: var(--msg-user); 
-            color: white; 
+            color: var(--text-primary); 
             border-radius: 16px 0 16px 16px; 
-            border: none;
-            box-shadow: var(--shadow-md);
+            border-color: transparent;
+            box-shadow: none;
+        }
+
+        /* OCR Live Notice Banner style */
+        .ocr-hint {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #fffbeb;
+            border: 1px dashed #fcd34d;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #b45309;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         /* --- AI Thinking Indicator --- */
-        .typing-indicator { display: flex; gap: 4px; padding: 8px 0; }
+        .typing-indicator { display: flex; gap: 5px; padding: 6px 0; align-items: center; }
         .typing-indicator span { 
-            width: 6px; height: 6px; background: var(--text-muted); 
+            width: 6px; height: 6px; background: var(--text-secondary); 
             border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; 
         }
         .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
         .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
-        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0.3); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
 
-        .cursor { display: inline-block; width: 2px; height: 1.1em; background: var(--primary); margin-left: 2px; vertical-align: middle; animation: blink 1s infinite; }
+        .cursor { display: inline-block; width: 2px; height: 1.15em; background: var(--primary); margin-left: 2px; vertical-align: middle; animation: blink 1s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
 
         /* --- Input Area --- */
         .input-wrapper { 
-            padding: 1.5rem; 
-            background: linear-gradient(to top, white 80%, transparent); 
+            padding: 1.5rem 2rem; 
+            background: linear-gradient(to top, var(--bg-main) 70%, transparent); 
             position: relative;
         }
         
         .input-container { 
-            max-width: 850px; 
+            max-width: 800px; 
             margin: 0 auto; 
             display: flex; 
-            align-items: flex-end; 
-            background: white; 
-            border: 1px solid var(--border-color); 
-            border-radius: 20px; 
-            padding: 0.6rem 1rem; 
-            box-shadow: var(--shadow-lg);
+            align-items: center; 
+            background: var(--bg-card); 
+            border: 1px solid rgba(0, 0, 0, 0.1); 
+            border-radius: 16px; 
+            padding: 0.6rem 0.8rem; 
+            box-shadow: var(--shadow-md);
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        .input-container:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1), var(--shadow-lg); }
+        .input-container:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow), var(--shadow-md); }
 
         #chat-input { 
             flex: 1; 
@@ -211,69 +267,66 @@
             background: transparent; 
             padding: 0.6rem; 
             outline: none; 
-            font-size: 1rem; 
-            max-height: 200px; 
+            font-size: 0.95rem; 
+            color: var(--text-primary);
+            max-height: 180px; 
             min-height: 24px;
+            line-height: 1.4;
             resize: none; 
             font-family: inherit;
         }
+        #chat-input::placeholder { color: var(--text-muted); line-height: 1.4; }
 
         .action-btn { 
-            background: none; border: none; color: var(--text-muted); 
-            cursor: pointer; padding: 10px; border-radius: 12px; 
+            background: none; border: none; color: var(--text-secondary); 
+            cursor: pointer; padding: 10px; border-radius: 10px; 
             transition: all 0.2s; display: flex; align-items: center; justify-content: center;
         }
-        .action-btn:hover { color: var(--primary); background: #f1f5f9; }
+        .action-btn:hover { color: var(--text-primary); background: rgba(0, 0, 0, 0.03); }
         
         .send-btn { 
             background: var(--primary); color: white; 
-            width: 40px; height: 40px; border-radius: 12px; 
-            margin-left: 0.5rem; transition: transform 0.2s, background 0.2s;
+            width: 36px; height: 36px; border-radius: 10px; 
+            margin-left: 0.4rem; transition: var(--transition-base);
+            display: flex; align-items: center; justify-content: center;
+            border: none; cursor: pointer;
         }
-        .send-btn:hover { background: var(--primary-hover); transform: scale(1.05); }
-        .send-btn:disabled { background: #e2e8f0; cursor: not-allowed; transform: none; }
+        .send-btn:hover { background: #4338ca; }
+        .send-btn:disabled { background: #e5e7eb; color: var(--text-muted); cursor: not-allowed; box-shadow: none; }
 
-        /* --- Mobile Responsiveness --- */
-        .menu-toggle { display: none; background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-primary); }
+        /* --- Mobile Responsiveness & Layout Framework --- */
+        .menu-toggle { display: none; background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-primary); padding-right: 1rem; }
 
-        /* Backdrop overlay for mobile menu */
         #sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            z-index: 999;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.25); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            z-index: 999; opacity: 0; transition: opacity 0.3s ease;
         }
 
+        /* Universal Adaptive Frame Constraints overrides for Mobile viewports */
         @media (max-width: 768px) {
+            main {
+                height: 96vh !important; /* Configured viewport height limit */
+            }
             #sidebar-overlay.active { display: block; opacity: 1; }
-            
-            /* Changed from 'left: -100%' to 'transform: translateX(-100%)' for smooth sliding */
-            aside { position: fixed; left: 0; transform: translateX(-100%); height: 100%; width: 280px; box-shadow: 20px 0 50px rgba(0,0,0,0.1); }
+            aside { position: fixed; left: 0; transform: translateX(-100%); height: 100%; width: 280px; box-shadow: var(--shadow-lg); background: var(--bg-sidebar); }
             aside.active { transform: translateX(0); }
-            
             .close-sidebar { display: block; }
             .menu-toggle { display: block; }
-            .chat-container { padding: 1rem; gap: 1.5rem; }
+            .chat-container { padding: 1.5rem 1rem; gap: 1.5rem; }
             .input-wrapper { padding: 0.75rem 1rem 1.5rem; }
-            .msg-content { max-width: calc(100% - 40px); }
+            .msg-content { max-width: calc(100% - 36px); }
         }
 
-        /* --- Markdown Overrides --- */
+        /* --- Markdown Style Rules --- */
         .msg-content p { margin-bottom: 0.75rem; }
         .msg-content p:last-child { margin-bottom: 0; }
-        .msg-content pre { background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; font-size: 0.85rem; }
-        .msg-content code { font-family: 'Fira Code', monospace; background: rgba(0,0,0,0.05); padding: 0.2em 0.4em; border-radius: 4px; }
-        .message.user .msg-content code { background: rgba(255,255,255,0.2); }
+        .msg-content pre { background: #1f2937; color: #f9fafb; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; font-size: 0.85rem; }
+        .msg-content code { font-family: 'Fira Code', monospace; background: #f3f4f6; padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; color: #db2777; }
     </style>
 </head>
 <body>
 
-    <!-- Added overlay element -->
     <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
     <aside id="sidebar">
@@ -296,13 +349,13 @@
             
             <div class="nav-label">Current File</div>
             <div id="active-doc-link" class="nav-item">
-                <i class="fas fa-file-pdf" style="color: #ef4444;"></i>
+                <i class="fas fa-file-pdf"></i>
                 <span id="side-file-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">No file active</span>
             </div>
         </nav>
 
         <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border-color);">
-            <p style="font-size: 0.7rem; color: var(--text-muted); text-align: center;">Powered by Advanced AI v1.2</p>
+            <p style="font-size: 0.65rem; color: var(--text-muted); text-align: center; letter-spacing: 0.02em; font-weight: 500;">Powered by Gemini 2.5 Flash & Mistral</p>
         </div>
     </aside>
 
@@ -311,16 +364,14 @@
             <div class="header-left" style="display: flex; align-items: center;">
                 <button type="button" class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
             </div>
-            <!-- Centered Header using absolute positioning -->
-            <h2 style="font-size: 1rem; font-weight: 600; position: absolute; left: 50%; transform: translateX(-50%); margin: 0;">CourseMate AI</h2>
-            <div id="upload-status" style="font-size: 0.8rem; color: var(--primary); font-weight: 500; z-index: 1;"></div>
+            <h2 style="font-size: 0.95rem; font-weight: 600; position: absolute; left: 50%; transform: translateX(-50%); margin: 0; color: var(--text-primary); letter-spacing: -0.01em;">CourseMate AI</h2>
+            <div id="upload-status" style="font-size: 0.8rem; color: var(--primary); font-weight: 600; z-index: 1;"></div>
         </header>
 
         <div class="chat-container" id="chat-window">
-            <!-- Initial Message -->
             <div class="message ai">
                 <div class="avatar ai-avatar"><i class="fas fa-robot"></i></div>
-                <div class="msg-content shadow-sm">
+                <div class="msg-content">
                     Hello! 👋 I'm your AI learning assistant. Upload a PDF document, and I'll help you summarize it, find key information, or answer any questions you have.
                 </div>
             </div>
@@ -339,8 +390,8 @@
                     <i class="fas fa-arrow-up"></i>
                 </button>
             </div>
-            <p style="font-size: 0.7rem; color: var(--text-muted); text-align: center; margin-top: 0.75rem;">
-                CourseMate AI responds solely based from your uploaded file.
+            <p style="font-size: 0.65rem; color: var(--text-muted); text-align: center; margin-top: 0.75rem; letter-spacing: 0.01em;">
+                CourseMate AI responds solely based on your uploaded file.
             </p>
         </div>
     </main>
@@ -348,6 +399,8 @@
     <script>
         let session_id = null;
         let isTyping = false;
+        let phraseInterval = null; 
+        
         const chatWindow = document.getElementById('chat-window');
         const chatInput = document.getElementById('chat-input');
         const fileInput = document.getElementById('pdf-upload');
@@ -356,10 +409,8 @@
         const activeDocLink = document.getElementById('active-doc-link');
         const uploadStatus = document.getElementById('upload-status');
 
-        // --- UI Logic ---
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
-            // Toggle the backdrop overlay as well
             document.getElementById('sidebar-overlay').classList.toggle('active');
         }
 
@@ -368,26 +419,24 @@
             textarea.style.height = textarea.scrollHeight + 'px';
         }
 
-        // Smart scroll to bottom
         function scrollToBottom() {
-            const threshold = 150; 
-            const position = chatWindow.scrollTop + chatWindow.offsetHeight;
-            const height = chatWindow.scrollHeight;
-            
-            // Only scroll if user is already near bottom
-            if (height - position < threshold) {
-                chatWindow.scrollTo({ top: height, behavior: 'smooth' });
-            }
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
-        // --- Core Logic ---
+        // Native behavior forcing the input field upwards out of keyboard margins smoothly
+        chatInput.addEventListener('focus', () => {
+            setTimeout(() => {
+                chatInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        });
+
         fileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if(!file) return;
 
             activeDocLink.style.display = "flex";
             sideFileName.innerText = file.name;
-            uploadStatus.innerText = "Processing document...";
+            uploadStatus.innerText = "Connecting...";
             
             const loaderId = 'upload-loader-' + Date.now();
             const loaderDiv = document.createElement('div');
@@ -395,12 +444,47 @@
             loaderDiv.id = loaderId;
             loaderDiv.innerHTML = `
                 <div class="avatar ai-avatar"><i class="fas fa-robot"></i></div>
-                <div class="msg-content shadow-sm">
-                    <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Analyzing <strong>${file.name}</strong>...
+                <div class="msg-content">
+                    <span id="dynamic-loading-text">
+                        <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Uploading and parsing structure of <strong>${file.name}</strong>...
+                    </span>
                 </div>
             `;
             chatWindow.appendChild(loaderDiv);
             scrollToBottom();
+
+            const loadingPhrases = [
+                "Reading direct text layouts...",
+                "Inspecting document readability layers...",
+                "Notice: Scanned text or image content detected. Activating Gemini Multimodal OCR Fallback Engine...",
+                "Running Gemini OCR page-by-page extraction...",
+                "Converting image fragments into semantic text structures...",
+                "Generating vector embeddings and chunk matrices...",
+                "Finalizing localized Chroma index store..."
+            ];
+            
+            let phraseIdx = 0;
+            if(phraseInterval) clearInterval(phraseInterval);
+            
+            phraseInterval = setInterval(() => {
+                if (phraseIdx < loadingPhrases.length) {
+                    const dynamicTextEl = document.getElementById('dynamic-loading-text');
+                    if (dynamicTextEl) {
+                        let text = loadingPhrases[phraseIdx];
+                        if (text.includes("Gemini Multimodal OCR")) {
+                            dynamicTextEl.innerHTML = `
+                                <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> ${text}
+                                <div class="ocr-hint"><i class="fas fa-bolt"></i> Running Gemini Vision processing. This might take up to a few seconds for dense images.</div>
+                            `;
+                            uploadStatus.innerText = "OCR Pipeline Active";
+                        } else {
+                            dynamicTextEl.innerHTML = `<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> ${text}`;
+                            uploadStatus.innerText = "Processing...";
+                        }
+                    }
+                    phraseIdx++;
+                }
+            }, 3000);
 
             const formData = new FormData();
             formData.append('file', file);
@@ -411,15 +495,24 @@
                     body: formData
                 });
                 const data = await response.json();
+                
+                clearInterval(phraseInterval);
+                document.getElementById(loaderId).remove();
+
+                if (data.error) {
+                    uploadStatus.innerText = "Upload failed";
+                    appendMessage('ai', `⚠️ ${data.error}`);
+                    return;
+                }
+
                 session_id = data.session_id;
                 uploadStatus.innerText = "Ready";
-                
-                document.getElementById(loaderId).remove();
-                appendMessage('ai', `Analysis complete! I've indexed **${file.name}**. What would you like to know?`);
+                appendMessage('ai', `✅ Analysis complete! **${file.name}** has been fully processed and indexed into vector memory. What information do you need?`);
             } catch (err) {
-                uploadStatus.innerText = "Upload failed";
+                clearInterval(phraseInterval);
+                uploadStatus.innerText = "Offline Error";
                 document.getElementById(loaderId).remove();
-                appendMessage('ai', '❌ Connection error. Please ensure the backend server is online.');
+                appendMessage('ai', '❌ Connection error. Please verify that your backend instance is active.');
             }
         });
 
@@ -427,12 +520,11 @@
             const query = chatInput.value.trim();
             if(!query || isTyping) return;
 
-            // Fix: Check if session exists first. If not, ask the user to upload a file.
             if (!session_id) {
                 appendMessage('user', query);
                 chatInput.value = '';
                 chatInput.style.height = 'auto';
-                appendMessage('ai', 'Please upload a PDF file first.');
+                appendMessage('ai', 'Please select and upload a valid PDF document resource before starting the chat.');
                 return;
             }
 
@@ -443,7 +535,6 @@
             chatInput.value = '';
             chatInput.style.height = 'auto';
             
-            // Add thinking indicator
             const thinkingId = 'thinking-' + Date.now();
             appendThinkingIndicator(thinkingId);
             scrollToBottom();
@@ -460,7 +551,7 @@
                 await typeWriterEffect(data.answer);
             } catch (err) {
                 removeThinkingIndicator(thinkingId);
-                appendMessage('ai', '⚠️ Sorry, I encountered an error. Please try again.');
+                appendMessage('ai', '⚠️ I encountered an asynchronous network exception. Please submit your parameter inquiry again.');
             } finally {
                 isTyping = false;
                 sendBtn.disabled = false;
@@ -468,7 +559,6 @@
             }
         }
 
-        // --- Animations ---
         function appendMessage(role, text) {
             const msgDiv = document.createElement('div');
             msgDiv.className = `message ${role}`;
@@ -476,7 +566,7 @@
             
             msgDiv.innerHTML = `
                 <div class="avatar ${role}-avatar"><i class="fas ${icon}"></i></div>
-                <div class="msg-content shadow-sm">${marked.parse(text)}</div>
+                <div class="msg-content">${marked.parse(text)}</div>
             `;
             
             chatWindow.appendChild(msgDiv);
@@ -489,7 +579,7 @@
             msgDiv.id = id;
             msgDiv.innerHTML = `
                 <div class="avatar ai-avatar"><i class="fas fa-robot"></i></div>
-                <div class="msg-content shadow-sm">
+                <div class="msg-content">
                     <div class="typing-indicator"><span></span><span></span><span></span></div>
                 </div>
             `;
@@ -508,28 +598,25 @@
             
             msgDiv.innerHTML = `
                 <div class="avatar ai-avatar"><i class="fas fa-robot"></i></div>
-                <div class="msg-content shadow-sm" id="${id}"></div>
+                <div class="msg-content" id="${id}"></div>
             `;
             chatWindow.appendChild(msgDiv);
             
             const target = document.getElementById(id);
             const rawHtml = marked.parse(markdownText);
             
-            // To handle HTML/Markdown while typing, we inject character by character
-            // into a temporary buffer to ensure valid HTML rendering
             let i = 0;
             const interval = setInterval(() => {
                 target.innerHTML = rawHtml.substring(0, i) + '<span class="cursor"></span>';
-                i += 3; // Speed multiplier
+                i += 3; 
                 scrollToBottom();
                 if (i >= rawHtml.length) {
                     clearInterval(interval);
-                    target.innerHTML = rawHtml; // Final clean render
+                    target.innerHTML = rawHtml; 
                 }
             }, 10);
         }
 
-        // --- Event Listeners ---
         chatInput.addEventListener('keydown', (e) => { 
             if(e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -537,7 +624,6 @@
             }
         });
 
-        // Ripple Effect Helper
         document.addEventListener('click', function (e) {
             if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
                 const btn = e.target.tagName === 'BUTTON' ? e.target : e.target.closest('button');
