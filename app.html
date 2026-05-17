@@ -133,7 +133,7 @@
             width: 100%; 
             background: var(--bg-main); 
             position: relative; 
-            height: 100%;
+            height: 95vh !important;
         }
         
         header { 
@@ -188,7 +188,7 @@
             background: var(--bg-card);
             box-shadow: var(--shadow-sm);
         }
-        .ai-avatar { background: var(--primary-light); color: var(--primary); border-color: rgba(79, 70, 229, 0.15); }
+        .ai-avatar { background: rgba(79, 70, 229, 0.05); color: var(--primary); border-color: rgba(79, 70, 229, 0.15); }
         .user-avatar { background: #27272a; color: #fff; border-color: #27272a; }
 
         .msg-content { 
@@ -212,7 +212,22 @@
             box-shadow: none;
         }
 
-        /* OCR Live Notice Banner style */
+        /* Minimal Progress Styling UI */
+        .progress-wrapper {
+            margin-top: 10px;
+            width: 100%;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            height: 6px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            background-color: var(--primary);
+            height: 100%;
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+
         .ocr-hint {
             margin-top: 8px;
             padding: 8px 12px;
@@ -224,6 +239,20 @@
             display: flex;
             align-items: center;
             gap: 8px;
+        }
+
+        .fallback-hint {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #fef2f2;
+            border: 1px dashed #fca5a5;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #b91c1c;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: fadeIn 0.3s ease;
         }
 
         /* --- AI Thinking Indicator --- */
@@ -294,7 +323,7 @@
         .send-btn:hover { background: #4338ca; }
         .send-btn:disabled { background: #e5e7eb; color: var(--text-muted); cursor: not-allowed; box-shadow: none; }
 
-        /* --- Mobile Responsiveness & Layout Framework --- */
+        /* --- Mobile Responsiveness --- */
         .menu-toggle { display: none; background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--text-primary); padding-right: 1rem; }
 
         #sidebar-overlay {
@@ -303,11 +332,7 @@
             z-index: 999; opacity: 0; transition: opacity 0.3s ease;
         }
 
-        /* Universal Adaptive Frame Constraints overrides for Mobile viewports */
         @media (max-width: 768px) {
-            main {
-                height: 96vh !important; /* Configured viewport height limit */
-            }
             #sidebar-overlay.active { display: block; opacity: 1; }
             aside { position: fixed; left: 0; transform: translateX(-100%); height: 100%; width: 280px; box-shadow: var(--shadow-lg); background: var(--bg-sidebar); }
             aside.active { transform: translateX(0); }
@@ -318,7 +343,6 @@
             .msg-content { max-width: calc(100% - 36px); }
         }
 
-        /* --- Markdown Style Rules --- */
         .msg-content p { margin-bottom: 0.75rem; }
         .msg-content p:last-child { margin-bottom: 0; }
         .msg-content pre { background: #1f2937; color: #f9fafb; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; font-size: 0.85rem; }
@@ -372,15 +396,15 @@
             <div class="message ai">
                 <div class="avatar ai-avatar"><i class="fas fa-robot"></i></div>
                 <div class="msg-content">
-                    Hello! 👋 I'm your AI learning assistant. Upload a PDF document, and I'll help you summarize it, find key information, or answer any questions you have.
+                    Hello! 👋 I'm your AI learning assistant. Upload a PDF or DOC/DOCX document (max 10 pages, 10MB), and I'll help you summarize it, find key information, or answer any questions you have.
                 </div>
             </div>
         </div>
 
         <div class="input-wrapper">
             <div class="input-container">
-                <input type="file" id="pdf-upload" hidden accept=".pdf">
-                <button type="button" class="action-btn" title="Upload PDF" onclick="document.getElementById('pdf-upload').click()">
+                <input type="file" id="pdf-upload" hidden accept=".pdf,.doc,.docx">
+                <button type="button" class="action-btn" title="Upload Document" onclick="document.getElementById('pdf-upload').click()">
                     <i class="fas fa-paperclip"></i>
                 </button>
                 
@@ -399,7 +423,7 @@
     <script>
         let session_id = null;
         let isTyping = false;
-        let phraseInterval = null; 
+        let progressSource = null;
         
         const chatWindow = document.getElementById('chat-window');
         const chatInput = document.getElementById('chat-input');
@@ -423,20 +447,39 @@
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
-        // Native behavior forcing the input field upwards out of keyboard margins smoothly
         chatInput.addEventListener('focus', () => {
             setTimeout(() => {
                 chatInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 300);
         });
 
-        fileInput.addEventListener('change', async (e) => {
+        fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if(!file) return;
 
+            // ----------------------------------------------------------------
+            // 🛑 FRONTEND PRE-FLIGHT VALIDATION (Instant Error Handlers)
+            // ----------------------------------------------------------------
+            // ✅ AFTER (Fixed)
+            const lowerName = file.name.toLowerCase();
+            if (!lowerName.endsWith('.pdf') && !lowerName.endsWith('.doc') && !lowerName.endsWith('.docx')) {
+                uploadStatus.innerText = "Validation Rejection";
+                appendMessage('ai', `⚠️ **Upload Rejected:** Invalid format file layout. System pipelines only accept standard structural file formats matching extension keys: \`.pdf\`, \`.doc\`, or \`.docx\`.`);
+                fileInput.value = '';
+                return;
+            }
+
+            const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+            if (file.size > MAX_SIZE_BYTES) {
+                uploadStatus.innerText = "Validation Rejection";
+                appendMessage('ai', `⚠️ **Upload Rejected:** File bounds error. Target configuration allocation space limits file sizing matrices to **10MB max** weight parameter bounds.`);
+                fileInput.value = '';
+                return;
+            }
+
             activeDocLink.style.display = "flex";
             sideFileName.innerText = file.name;
-            uploadStatus.innerText = "Connecting...";
+            uploadStatus.innerText = "Uploading...";
             
             const loaderId = 'upload-loader-' + Date.now();
             const loaderDiv = document.createElement('div');
@@ -444,76 +487,141 @@
             loaderDiv.id = loaderId;
             loaderDiv.innerHTML = `
                 <div class="avatar ai-avatar"><i class="fas fa-robot"></i></div>
-                <div class="msg-content">
-                    <span id="dynamic-loading-text">
-                        <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> Uploading and parsing structure of <strong>${file.name}</strong>...
-                    </span>
+                <div class="msg-content" style="width: 100%;">
+                    <div id="dynamic-loading-text">
+                        <i class="fas fa-cloud-upload-alt" style="margin-right: 8px;"></i> Uploading <strong>${file.name}</strong>: <span id="upload-pct">0%</span>
+                    </div>
+                    <div class="progress-wrapper">
+                        <div class="progress-bar" id="upload-progress-bar"></div>
+                    </div>
                 </div>
             `;
             chatWindow.appendChild(loaderDiv);
             scrollToBottom();
 
-            const loadingPhrases = [
-                "Reading direct text layouts...",
-                "Inspecting document readability layers...",
-                "Notice: Scanned text or image content detected. Activating Gemini Multimodal OCR Fallback Engine...",
-                "Running Gemini OCR page-by-page extraction...",
-                "Converting image fragments into semantic text structures...",
-                "Generating vector embeddings and chunk matrices...",
-                "Finalizing localized Chroma index store..."
-            ];
-            
-            let phraseIdx = 0;
-            if(phraseInterval) clearInterval(phraseInterval);
-            
-            phraseInterval = setInterval(() => {
-                if (phraseIdx < loadingPhrases.length) {
-                    const dynamicTextEl = document.getElementById('dynamic-loading-text');
-                    if (dynamicTextEl) {
-                        let text = loadingPhrases[phraseIdx];
-                        if (text.includes("Gemini Multimodal OCR")) {
-                            dynamicTextEl.innerHTML = `
-                                <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> ${text}
-                                <div class="ocr-hint"><i class="fas fa-bolt"></i> Running Gemini Vision processing. This might take up to a few seconds for dense images.</div>
-                            `;
-                            uploadStatus.innerText = "OCR Pipeline Active";
-                        } else {
-                            dynamicTextEl.innerHTML = `<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> ${text}`;
-                            uploadStatus.innerText = "Processing...";
-                        }
-                    }
-                    phraseIdx++;
-                }
-            }, 3000);
-
+            const xhr = new XMLHttpRequest();
             const formData = new FormData();
             formData.append('file', file);
 
-            try {
-                const response = await fetch('https://coursemate-ai-1.onrender.com/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
-                
-                clearInterval(phraseInterval);
-                document.getElementById(loaderId).remove();
-
-                if (data.error) {
-                    uploadStatus.innerText = "Upload failed";
-                    appendMessage('ai', `⚠️ ${data.error}`);
-                    return;
+            xhr.upload.addEventListener('progress', (event) => {
+                if (event.lengthComputable) {
+                    const percentage = Math.round((event.loaded / event.total) * 100);
+                    const pctElement = document.getElementById('upload-pct');
+                    const barElement = document.getElementById('upload-progress-bar');
+                    
+                    if (pctElement) pctElement.innerText = percentage + '%';
+                    if (barElement) barElement.style.width = percentage + '%';
+                    
+                    if (percentage === 100) {
+                        uploadStatus.innerText = "Indexing Pipeline...";
+                        const textEl = document.getElementById('dynamic-loading-text');
+                        if (textEl) {
+                            textEl.innerHTML = `
+                                <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> File structural payload transferred. Awaiting pipeline stream token initialization...
+                            `;
+                        }
+                    }
                 }
+            });
 
-                session_id = data.session_id;
-                uploadStatus.innerText = "Ready";
-                appendMessage('ai', `✅ Analysis complete! **${file.name}** has been fully processed and indexed into vector memory. What information do you need?`);
-            } catch (err) {
-                clearInterval(phraseInterval);
-                uploadStatus.innerText = "Offline Error";
-                document.getElementById(loaderId).remove();
-                appendMessage('ai', '❌ Connection error. Please verify that your backend instance is active.');
-            }
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        
+                        if (data.error) {
+                            if (progressSource) progressSource.close();
+                            loaderDiv.remove();
+                            uploadStatus.innerText = "Upload failed";
+                            appendMessage('ai', `⚠️ ${data.error}`);
+                            fileInput.value = '';
+                            return;
+                        }
+                        
+                        session_id = data.session_id;
+                        
+                        // Connect to native pipeline stream tracker directly
+                        if (progressSource) progressSource.close();
+                        
+                        progressSource = new EventSource(`https://coursemate-ai-1.onrender.com/progress/${session_id}`);
+                        
+                        progressSource.onmessage = (event) => {
+                            try {
+                                // Parse directly since backend is now transmitting exact JSON
+                                const state = JSON.parse(event.data);
+                                
+                                const textEl = document.getElementById('dynamic-loading-text');
+                                const barElement = document.getElementById('upload-progress-bar');
+                                const pctElement = document.getElementById('upload-pct');
+                                
+                                if (pctElement) pctElement.innerText = state.progress + '%';
+                                if (barElement) barElement.style.width = state.progress + '%';
+                                
+                                if (textEl) {
+                                    if (state.status === "fallback_active") {
+                                        uploadStatus.innerText = "Fallback Engine Active";
+                                        textEl.innerHTML = `
+                                            <i class="fas fa-exclamation-triangle" style="color: #ea580c; margin-right: 8px;"></i> ${state.message}
+                                            <div class="fallback-hint">
+                                                <i class="fas fa-share-alt-square fa-spin"></i> Core Migration Alert: Initialized Mistral OCR Vision dynamic tracking sequence.
+                                            </div>
+                                        `;
+                                    } else if (state.status === "ocr_processing") {
+                                        uploadStatus.innerText = "OCR Core Active";
+                                        textEl.innerHTML = `
+                                            <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> ${state.message}
+                                            <div class="ocr-hint"><i class="fas fa-bolt"></i> Running active Gemini Vision processing operations.</div>
+                                        `;
+                                    } else {
+                                        uploadStatus.innerText = "Processing...";
+                                        textEl.innerHTML = `<i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i> ${state.message}`;
+                                    }
+                                }
+                                
+                                if (state.progress === 100) {
+                                    progressSource.close();
+                                    progressSource = null;
+                                    loaderDiv.remove();
+                                    uploadStatus.innerText = "Ready";
+                                    appendMessage('ai', `✅ Analysis complete! **${file.name}** has been safely processed and chunked inside the localized index store. Let me know what questions you have.`);
+                                    return;
+                                }
+                                
+                                if (state.is_error) {
+                                    progressSource.close();
+                                    progressSource = null;
+                                    loaderDiv.remove();
+                                    uploadStatus.innerText = "Pipeline error";
+                                    appendMessage('ai', `❌ Processing Error: ${state.message}`);
+                                    fileInput.value = '';
+                                }
+                            } catch (parseErr) {
+                                console.log("Stream structure mapping log exception caught:", parseErr);
+                            }
+                        };
+                        
+                        progressSource.onerror = () => {
+                            // Guard: don't act on onerror if we already cleanly closed the stream
+                            if (progressSource) {
+                                progressSource.close();
+                                progressSource = null;
+                            }
+                        };
+                        
+                    } catch (err) {
+                        if (progressSource) progressSource.close();
+                        loaderDiv.remove();
+                        uploadStatus.innerText = "Processing Timeout / Error";
+                        appendMessage('ai', '❌ System Error: The request execution timed out or was rejected by the server tier filters. Please verify document formatting size rules.');
+                        fileInput.value = '';
+                    }
+                }
+            };
+
+            // Native String.prototype.endsWith is universally supported — no polyfill needed.
+
+            xhr.open('POST', 'https://coursemate-ai-1.onrender.com/upload', true);
+            xhr.send(formData);
         });
 
         async function sendMessage() {
