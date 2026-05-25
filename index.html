@@ -222,7 +222,7 @@
     <section class="hero">
         <div class="hero-content">
             <h1>Learn Smarter with AI</h1>
-            <p>The intelligent RAG-powered assistant that turns your PDFs into interactive knowledge. Ask questions, get citations, and master your documents instantly.</p>
+            <p>The intelligent RAG-powered assistant that turns your PDFs and Documents into interactive knowledge. Ask questions, get citations, and master your materials instantly.</p>
             <div class="hero-btns">
                 <a href="app.html" class="btn-primary">Try CourseMate Free <i class="fas fa-rocket"></i></a>
                 <a href="#about" class="btn-outline">How it works <i class="fas fa-link"></i></a>
@@ -234,30 +234,30 @@
     </section>
 
     <div class="interaction-box" id="about">
-        <h2>Intelligent Document Interaction</h2>
-        <p>By leveraging cutting-edge Retrieval-Augmented Generation (RAG), CourseMate AI processes your PDFs, creates high-dimensional embeddings, and provides answers that are 100% grounded in your specific content.</p>
+        <h2>Multi-modal Document Intelligence</h2>
+        <p>Using RAG-based architecture and <strong>Vision OCR</strong>, CourseMate AI processes scanned PDFs and Word Documents, converting complex layouts into high-dimensional vector embeddings for grounded, hallucination-free querying.</p>
     </div>
 
     <div class="section-header" id="tech">
         <h2>Modern GenAI Stack</h2>
-        <p style="color: var(--text-muted);">Built with the most powerful tools in Artificial Intelligence.</p>
+        <p style="color: var(--text-muted);">Production-grade components for secure document analysis.</p>
     </div>
 
     <div class="tech-grid">
         <div class="tech-card">
-            <div class="tech-icon"><i class="fas fa-link"></i></div>
-            <h3>LangChain</h3>
-            <p>Orchestrates the entire RAG pipeline, managing document chunking and LLM prompt chains.</p>
+            <div class="tech-icon"><i class="fas fa-shield-alt"></i></div>
+            <h3>Authentication</h3>
+            <p>Secure Firebase Integration for individual user sessions and private chat isolation.</p>
         </div>
         <div class="tech-card">
             <div class="tech-icon"><i class="fas fa-database"></i></div>
-            <h3>Chroma DB</h3>
-            <p>High-performance vector database for lightning-fast semantic search and retrieval.</p>
+            <h3>SQL & Vector Store</h3>
+            <p>SQLAlchemy-backed chat history persistence paired with ChromaDB for semantic retrieval.</p>
         </div>
         <div class="tech-card">
             <div class="tech-icon"><i class="fas fa-robot"></i></div>
-            <h3>Mistral AI</h3>
-            <p>The Large Language Model synthesizing retrieved context into natural, accurate responses.</p>
+            <h3>Dual-Engine AI</h3>
+            <p>Intelligent fallback logic between Gemini (Vision OCR) and Mistral for maximum uptime.</p>
         </div>
     </div>
 
@@ -265,51 +265,50 @@
         <div class="features-list">
             <h2 style="font-size: 2rem; margin-bottom: 2rem;">Why CourseMate?</h2>
             <div class="feat-item">
-                <i class="fas fa-shield"></i>
+                <i class="fas fa-file-alt"></i>
                 <div class="feat-text">
-                    <h4 style="font-weight: 700;">Zero Hallucination</h4>
-                    <p style="font-size: 0.95rem; color: var(--text-muted);">Responses are strictly limited to the data found in your uploaded documents.</p>
+                    <h4 style="font-weight: 700;">Multi-modal OCR</h4>
+                    <p style="font-size: 0.95rem; color: var(--text-muted);">Supports both standard PDFs and scanned image-based documents using vision-enabled AI.</p>
                 </div>
             </div>
             <div class="feat-item">
-                <i class="fas fa-bolt"></i>
+                <i class="fas fa-history"></i>
                 <div class="feat-text">
-                    <h4 style="font-weight: 700;">Instant Citations</h4>
-                    <p style="font-size: 0.95rem; color: var(--text-muted);">Every answer includes specific references so you can verify the information.</p>
+                    <h4 style="font-weight: 700;">Persistent Chat History</h4>
+                    <p style="font-size: 0.95rem; color: var(--text-muted);">Secure, user-specific conversation logs stored via persistent database sessions.</p>
                 </div>
             </div>
             <div class="feat-item">
                 <i class="fas fa-lock"></i>
                 <div class="feat-text">
                     <h4 style="font-weight: 700;">Privacy First</h4>
-                    <p style="font-size: 0.95rem; color: var(--text-muted);">Every file you upload, gets deleted from our vector DB automatically after 10 minutes of session expiry.</p>
+                    <p style="font-size: 0.95rem; color: var(--text-muted);">Automated, ephemeral file management deletes user data 10 minutes after session expiry.</p>
                 </div>
             </div>
             <div class="feat-item">
                 <i class="fas fa-brain"></i>
                 <div class="feat-text">
-                    <h4 style="font-weight: 700;">Deep Understanding</h4>
-                    <p style="font-size: 0.95rem; color: var(--text-muted);">Our RAG architecture understands the semantic meaning, not just keywords.</p>
+                    <h4 style="font-weight: 700;">Grounded RAG</h4>
+                    <p style="font-size: 0.95rem; color: var(--text-muted);">Answers are strictly bound to your provided context with explicit citations.</p>
                 </div>
             </div>
         </div>
         <div class="hero-visual" style="margin-top: 0;">
-             <!-- Reusing mockup style for feature visual -->
              <div style="background: white; border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem; box-shadow: var(--shadow);">
                 <div style="display: flex; gap: 8px; margin-bottom: 1rem;">
                     <div style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f57;"></div>
                     <div style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e;"></div>
                     <div style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f;"></div>
                 </div>
-                <p style="font-size: 0.85rem; background: #f1f5f9; padding: 10px; border-radius: 8px; margin-bottom: 10px;">User: What are the safety protocols in the manual?</p>
-                <p style="font-size: 0.85rem; background: #eef2ff; border: 1px solid #c7d2fe; padding: 10px; border-radius: 8px; margin-left: 20px;">AI: Based on page 12, the safety protocols include wearing protective gear...</p>
+                <p style="font-size: 0.85rem; background: #f1f5f9; padding: 10px; border-radius: 8px; margin-bottom: 10px;">User: Summarize the safety protocols...</p>
+                <p style="font-size: 0.85rem; background: #eef2ff; border: 1px solid #c7d2fe; padding: 10px; border-radius: 8px; margin-left: 20px;">AI: Based on the OCR scan of page 12, the safety protocols are...</p>
              </div>
         </div>
     </section>
 
     <section class="cta-bottom">
         <h2>Ready to master your documents?</h2>
-        <p>Join students and researchers who are learning 10x faster with CourseMate AI.</p>
+        <p>Join researchers and students using CourseMate AI for smarter, authenticated learning.</p>
         <div class="hero-btns">
             <a href="app.html" class="btn-primary" style="background: white; color: var(--primary);">Get Started Now</a>
         </div>
@@ -319,14 +318,13 @@
         <div class="footer-info">
             <h4>CourseMate AI</h4>
             <p>© 2026 CourseMate AI. Built for the future of education.</p>
-            <p style="font-size: 0.8rem; margin-top: 0.5rem;">Developed by <a href="https://vibieprince.vercel.app"><h4>Prince Singh</h4></a></p><p></p>
+            <p style="font-size: 0.8rem; margin-top: 0.5rem;">Developed by <a href="https://vibieprince.vercel.app"><h4>Prince Singh</h4></a></p>
         </div>
         <div>
             <h4 style="font-size: 0.9rem; margin-bottom: 1rem;">Navigation</h4>
             <ul class="footer-links">
                 <li><a href="https://github.com/vibieprince">GitHub</a></li>
                 <li><a href="https://linkedin.com/in/vibieprince">LinkedIn</a></li>
-                <li><a href="https://github.com/vibieprince/CourseMate-AI">Documentation</a></li>
             </ul>
         </div>
     </footer>
