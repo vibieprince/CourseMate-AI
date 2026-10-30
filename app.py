@@ -23,7 +23,7 @@ from langchain_mistralai import ChatMistralAI, MistralAIEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai import ChatGoogleGenerativeAI,GoogleGenerativeAIEmbeddings
 from langchain_core.messages import HumanMessage, AIMessage
 
 import fitz  # PyMuPDF
@@ -170,10 +170,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-embedding_model = MistralAIEmbeddings(
-    model="mistral-embed",
-    mistral_api_key=os.getenv("MISTRAL_API_KEY")
-)
+embedding_model = GoogleGenerativeAIEmbeddings(model="gemini-embedding-2-preview")
 
 llm = ChatMistralAI(
     model="mistral-small-2603", 
@@ -186,6 +183,7 @@ gemini_ocr_llm = ChatGoogleGenerativeAI(
     temperature=0,
     api_key=os.getenv("GOOGLE_API_KEY")
 )
+
 mistral_ocr_llm = ChatMistralAI(
     model="pixtral-12b-2409", 
     temperature=0, 
