@@ -172,10 +172,10 @@ app.add_middleware(
 
 embedding_model = GoogleGenerativeAIEmbeddings(model="gemini-embedding-2-preview")
 
-llm = ChatMistralAI(
-    model="mistral-small-2603", 
+llm = ChatGoogleGenerativeAI(
+    model="gemini-2.5-flash", 
     temperature=0,
-    api_key=os.getenv("MISTRAL_API_KEY")
+    api_key=os.getenv("GOOGLE_API_KEY")
 )
 
 gemini_ocr_llm = ChatGoogleGenerativeAI(
