@@ -176,7 +176,7 @@ embedding_model = MistralAIEmbeddings(
 )
 
 llm = ChatMistralAI(
-    model="mistral-small-latest", 
+    model="mistral-small-2603", 
     temperature=0,
     api_key=os.getenv("MISTRAL_API_KEY")
 )
