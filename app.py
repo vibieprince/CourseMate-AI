@@ -19,11 +19,10 @@ from sqlalchemy import create_engine, Column, String, Boolean, DateTime, Integer
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 
 from langchain_core.documents import Document
-from langchain_mistralai import ChatMistralAI
+from langchain_mistralai import ChatMistralAI, MistralAIEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface.embeddings import HuggingFaceEndpointEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, AIMessage
 
@@ -171,10 +170,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-embedding_model = HuggingFaceEndpointEmbeddings(
-    model="sentence-transformers/all-MiniLM-L6-v2",
-    huggingfacehub_api_token=os.getenv("HUGGINGFACEHUB_API_TOKEN")
+embedding_model = MistralAIEmbeddings(
+    model="mistral-embed",
+    mistral_api_key=os.getenv("MISTRAL_API_KEY")
 )
+
 llm = ChatMistralAI(
     model="mistral-small-latest", 
     temperature=0,
